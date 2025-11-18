@@ -103,6 +103,21 @@ func TestPool(t *testing.T) {
 		require.Panics(t, g.Wait)
 	})
 
+	t.Run("propagate panic", func(t *testing.T) {
+		t.Parallel()
+		g := pool.New()
+		for i := 0; i < 10; i++ {
+			i := i
+			g.Go(func() {
+				if i == 5 {
+					panic(i)
+				}
+			})
+		}
+		andRecover := g.WaitAndRecover()
+		require.Equal(t, andRecover.Value, 5)
+	})
+
 	t.Run("panics do not exhaust goroutines", func(t *testing.T) {
 		t.Parallel()
 		g := pool.New().WithMaxGoroutines(2)

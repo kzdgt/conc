@@ -47,6 +47,33 @@ func (p *ErrorPool) Wait() error {
 	}
 }
 
+// WaitAndRecover waits for all tasks to complete, propagating any panics and
+// returning any errors from tasks.
+// It collects errors returned by tasks submitted via Go() method and handles
+// panics that might occur during task execution.
+// Returns:
+//   - nil if no errors occurred and no panics were recovered
+//   - the first error or panic if WithFirstError() was called
+//   - a combined error of all errors and panics otherwise
+func (p *ErrorPool) WaitAndRecover() error {
+	recErr := p.pool.WaitAndRecover().AsError()
+
+	errs := p.errs
+	p.errs = nil // reset errs
+
+	if len(errs) == 0 && recErr == nil {
+		return nil
+	} else if p.onlyFirstError {
+		if recErr != nil {
+			return recErr
+		}
+		return errs[0]
+	} else {
+		errs = append(errs, recErr)
+		return errors.Join(errs...)
+	}
+}
+
 // WithContext converts the pool to a ContextPool for tasks that should
 // run under the same context, such that they each respect shared cancellation.
 // For example, WithCancelOnError can be configured on the returned pool to

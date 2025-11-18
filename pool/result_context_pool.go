@@ -37,6 +37,17 @@ func (p *ResultContextPool[T]) Wait() ([]T, error) {
 	return results, err
 }
 
+// WaitAndRecover cleans up all spawned goroutines, recovers any panics, and
+// returns an error if any of the tasks panicked or errored. Unlike Wait(),
+// this method does not propagate panics to the caller, instead converting them
+// to errors.
+func (p *ResultContextPool[T]) WaitAndRecover() ([]T, error) {
+	err := p.contextPool.WaitAndRecover()
+	results := p.agg.collect(p.collectErrored)
+	p.agg = resultAggregator[T]{}
+	return results, err
+}
+
 // WithCollectErrored configures the pool to still collect the result of a task
 // even if the task returned an error. By default, the result of tasks that errored
 // are ignored and only the error is collected.

@@ -4,6 +4,8 @@ import (
 	"context"
 	"sort"
 	"sync"
+
+	"github.com/sourcegraph/conc/panics"
 )
 
 // NewWithResults creates a new ResultPool for tasks with a result of type T.
@@ -43,6 +45,16 @@ func (p *ResultPool[T]) Wait() []T {
 	results := p.agg.collect(true)
 	p.agg = resultAggregator[T]{} // reset for reuse
 	return results
+}
+
+// WaitAndRecover waits for all goroutines to complete, then returns both the results and
+// any panic that was recovered. If multiple goroutines panicked, only one of the panics
+// is returned. This method is not safe to call concurrently with other pool methods.
+func (p *ResultPool[T]) WaitAndRecover() ([]T, *panics.Recovered) {
+	rec := p.pool.WaitAndRecover()
+	results := p.agg.collect(true)
+	p.agg = resultAggregator[T]{} // reset for reuse
+	return results, rec
 }
 
 // MaxGoroutines returns the maximum size of the pool.

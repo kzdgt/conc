@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/sourcegraph/conc"
+	"github.com/sourcegraph/conc/panics"
 )
 
 // New creates a new Pool.
@@ -79,6 +80,22 @@ func (p *Pool) Wait() {
 	defer func() { p.initOnce = sync.Once{} }()
 
 	p.handle.Wait()
+}
+
+// WaitAndRecover waits for all goroutines to complete and recovers any panics that occurred
+// during their execution. It returns a *panics.Recovered struct containing information about
+// any panics that were recovered. After all tasks have completed, this function resets
+// initOnce so that tasks can be reinitialized on the next use.
+func (p *Pool) WaitAndRecover() *panics.Recovered {
+	p.init()
+
+	close(p.tasks)
+
+	// After Wait() returns, reset the struct so tasks will be reinitialized on
+	// next use. This better matches the behavior of sync.WaitGroup
+	defer func() { p.initOnce = sync.Once{} }()
+
+	return p.handle.WaitAndRecover()
 }
 
 // MaxGoroutines returns the maximum size of the pool.

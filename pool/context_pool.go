@@ -57,6 +57,15 @@ func (p *ContextPool) Wait() error {
 	return p.errorPool.Wait()
 }
 
+// WaitAndRecover cleans up all spawned goroutines, and recovers any panics,
+// returning an error if any of the tasks panicked or errored.
+// It behaves like Wait() but also captures and returns panics as errors.
+func (p *ContextPool) WaitAndRecover() error {
+	// Make sure we call cancel after pool is done to avoid memory leakage.
+	defer p.cancel()
+	return p.errorPool.WaitAndRecover()
+}
+
 // WithFirstError configures the pool to only return the first error
 // returned by a task. By default, Wait() will return a combined error.
 // This is particularly useful for (*ContextPool).WithCancelOnError(),

@@ -132,4 +132,21 @@ func TestErrorPool(t *testing.T) {
 		require.ErrorIs(t, wait2, err2)
 		require.NotErrorIs(t, wait1, err2)
 	})
+
+	t.Run("panic", func(t *testing.T) {
+		// Test for https://github.com/sourcegraph/conc/issues/128
+		p := pool.New().WithErrors()
+
+		p.Go(func() error { return nil })
+
+		p.Go(func() error { return nil })
+		p.Go(func() error { panic("panic") })
+
+		require.NotPanics(t, func() {
+			wait := p.WaitAndRecover()
+			// On reuse, only the new error should be returned
+			fmt.Println(wait)
+		})
+		fmt.Println("done")
+	})
 }
