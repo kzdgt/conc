@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/sourcegraph/conc/panics"
+	"github.com/kzdgt/conc/panics"
 )
 
 // NewWithResults creates a new ResultPool for tasks with a result of type T.

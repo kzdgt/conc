@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sourcegraph/conc/stream"
+	"github.com/kzdgt/conc/stream"
 
 	"github.com/stretchr/testify/require"
 )

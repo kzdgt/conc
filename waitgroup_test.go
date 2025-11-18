@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/sourcegraph/conc"
+	"github.com/kzdgt/conc"
 
 	"github.com/stretchr/testify/require"
 )

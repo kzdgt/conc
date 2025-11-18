@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/sourcegraph/conc"
-	"github.com/sourcegraph/conc/panics"
+	"github.com/kzdgt/conc"
+	"github.com/kzdgt/conc/panics"
 )
 
 // New creates a new Pool.

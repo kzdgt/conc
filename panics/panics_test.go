@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/sourcegraph/conc/panics"
+	"github.com/kzdgt/conc/panics"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

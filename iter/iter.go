@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"sync/atomic"
 
-	"github.com/sourcegraph/conc"
+	"github.com/kzdgt/conc"
 )
 
 // defaultMaxGoroutines returns the default maximum number of
